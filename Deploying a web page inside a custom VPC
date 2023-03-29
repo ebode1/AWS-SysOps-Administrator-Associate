@@ -1,0 +1,324 @@
+Deploying a web page inside a custom VPC
+/
+Cloud Network Engineer 
+/
+Networking 
+
+Project Steps
+Task 1: Sign in to AWS Management Console
+Click on the  button, and you will get redirected to AWS Console in a new browser tab.
+
+On the AWS sign-in page,
+
+Leave the Account ID as default. Never edit/remove the 12 digit Account ID present in the AWS Console. otherwise, you cannot proceed with the project.
+
+Now copy your User Name and Password in the project Console to the IAM Username and Password in AWS Console and click on the Sign in button.
+
+Once Signed In to the AWS Management Console, Make the default AWS Region as US East (N. Virginia) us-east-1.
+
+Task 2: Creating a custom VPC
+Make sure you are in the US East (N. Virginia) us-east-1 Region.
+
+Navigate to VPC by clicking on the Services menu, under the Networking & Content Delivery section.
+
+Click on Your VPCs on the left menu.
+
+Here you can see the list of all VPC’s. No need to do anything with the existing and default VPCs, we will create a new VPC for this project.
+
+Click on .
+
+Select VPC only.
+
+Name tag: Enter a VPC name for identification to your VPC, whiz_VPC
+
+IPv4 CIDR block: Enter 10.0.0.0/16
+
+IPv6 CIDR block: No need to change this, make sure No IPv6 CIDR Block is checked.
+
+Tenancy: No need to change this, make sure Default is selected.
+
+Now click on . 
+
+
+
+Once the VPC is created, click on Your VPCs on the left where you can see the created VPC.
+
+
+
+Task 3: Creating Public and Private subnets
+In this project, we will create one public subnet and a private subnet in the us-east-1a Availability Zone:
+
+In the left navigation panel, click on Subnets.
+
+Click on .
+
+VPC ID : Select whiz_VPC which was created earlier from the list.
+
+For the Public subnet, 
+
+Subnet Name: Enter name whiz_Public_Subnet
+
+Availability Zone: Select us-east-1a
+
+IPv4 CIDR block: Enter the range 10.0.1.0/24
+
+Leave the tags as default.
+
+Click on Add new subnet to add Private subnet.
+
+For the Private subnet,  
+
+Subnet Name: Enter name whiz_Private_Subnet
+
+Availability Zone: Select us-east-1a
+
+IPv4 CIDR block: Enter the range 10.0.2.0/24
+
+Leave the tags as default.
+
+Click on .
+
+Once the subnets are created, you will be redirected to the Subnets page.
+
+
+
+By default non-default subnets have the IPv4 public addressing attribute set to false. Let’s enable the auto-assign IPv4 Public address.
+
+To do so, select the created Public subnet, whiz_Public_Subnet and click on Actions and choose Edit Subnet settings.
+
+Check the box Enable auto-assign IPv4 Public address and click on Save.
+
+
+
+Though we have named the subnet as whiz_Public_Subnet, it is not Public yet. A Public subnet must have an Internet gateway.
+
+Task 4: Creating an Internet Gateway and attaching it to VPC
+In the left navigation panel, click on Internet Gateways.
+
+Click on .
+
+Name Tag: Enter name whiz_IG
+
+Leave the tags as default.
+
+Click on Create Internet gateway.
+
+Now we can attach it to a VPC to enable the VPC to communicate with the internet.
+
+Click on Actions and select Attach to VPC.
+
+In the list of Available VPC’s, select the VPC we created earlier and click on .
+
+
+
+Task 5: Creating and configuring Route tables
+In the left navigation panel, click on Route Tables.
+
+Click on .
+
+For the Public Route Table,
+
+Name: Enter whiz_Public_RT
+
+Select the created VPC, whiz_VPC.
+
+Leave the tags as default.
+
+Click on Create route table button.
+
+Navigate back to the Route Tables and click on  to create a private route table.
+
+For the Private Route Table,
+
+Name: Enter whiz_Private_RT
+
+Select the created VPC, whiz_VPC.
+
+Leave the tags as default.
+
+Click on Create route table button.
+
+Now let’s associate the subnets to the Route tables.
+
+Select the created Public route table, whiz_Public_RT.
+
+Click on the Subnet associations below.
+
+Click Edit subnet associations.
+
+Select whiz_Public_Subnet from the Available subnets.
+
+Click on .
+
+Select the created Private route table, whiz_Private_RT.
+
+Click on the Subnet associations below.
+
+Click Edit subnet associations.
+
+Select whiz_Private_Subnet from the Available subnets.
+
+Click on .
+
+Make sure not to associate any subnets with the Main Route Table.
+
+Now, let’s add a route to the route table that directs 0.0.0.0/0 traffic to the internet gateway.
+
+To do that, select the created Public route table, whiz_Public_RT.
+
+Click on the Routes below.
+
+Click Edit routes.
+
+Click on Add route.
+
+Destination: Enter 0.0.0.0/0
+
+Target: Choose Internet gateway from the list and select the internet gateway we created earlier.
+
+Click on Save changes button.
+
+
+
+Task 6: Creating a Security group for EC2 Instance 
+In the left panel of VPC, navigate to the Security Groups under the SECURITY section.
+
+Click on .
+
+We are going to create a Security group for EC2 with port number 80 enabled.
+
+Security group name : Enter ec2_SG
+
+Description: Enter Allows HTTP access
+
+VPC: Select whiz_VPC [IMPORTANT]
+
+Click on the Add Rule button under Inbound rules.
+
+For HTTP,
+
+Choose Type: HTTP 
+
+Source: Select Custom
+
+In the textbox add 0.0.0.0/0
+
+Leave everything as default and click on .
+
+
+
+Task 7: Launching an EC2 Instance inside the public subnet
+Make sure you are in the N. Virginia(us-east-1) Region.
+
+Navigate to EC2 by clicking on the Services menu in the top left, then click on EC2 in the Compute section.
+
+Navigate to Instances from the left side menu and click on Launch Instances button.
+
+Under the Name and tags section :
+
+Name : EC2_server
+
+Under the Application and OS Images (Amazon Machine Image) section :
+
+Select Quick Start tab and Amazon Linux under it
+
+Amazon Machine Image (AMI) : select Amazon Linux 2 AMI
+
+Note: if there are two AMI's present for Amazon Linux 2 AMI, choose any of them.
+
+
+
+Under the Instance Type section : 
+
+Instance Type : Select t2.micro
+
+
+
+Under the Key Pair (login) section, select Proceed without a key pair
+
+Under the Network Settings section :
+
+Click on Edit button
+
+VPC : select whiz_VPC
+
+Subnets : Select whiz_Public_Subnet
+
+Auto-assign public IP: select Enable
+
+Firewall (security groups) : Select Select existing security group
+
+Common security groups : Select ec2_SG
+
+Under the Advanced details section :
+
+Under the User data: copy and paste the following script
+
+#!/bin/bash
+
+sudo su
+
+yum update -y
+
+yum install httpd -y
+
+echo "<html><h1> Welcome to Whizlabs from $(hostname -f)</h1><html>" > /var/www/html/index.html
+
+systemctl start httpd
+
+systemctl enable httpd
+Keep everything else as default and click on the Launch instance button.
+
+Launch Status: Your instance is now launching, Navigate to Instances page from the left menu and wait until the status of the EC2 Instance changes to running.
+
+
+
+In the details tab, copy the Public IPv4 Address of your EC2 instance.
+
+Open a new web browser tab, paste the IP address and press Enter.
+
+If the VPC was configured correctly, we should be able to see a HTML web page. This shows that we have configured the public subnet correctly.
+
+
+
+Task 8: Validation Test
+Once the project steps are completed, please click on the  button on the left side panel.
+This will validate the resources in the AWS account and displays whether you have completed this project successfully or not.
+Sample output : 
+      
+
+Task 9: Delete AWS Resources
+Deleting the EC2 Instance
+Navigate to the Services menu at the top left corner and click on EC2 present under the Compute section.
+
+Navigate to Instances on the left panel.
+
+Select the EC2 Instance and click on Instance state.
+
+Click on the Terminate Instance.
+
+Confirm by clicking on the Terminate button.
+
+
+
+Completion and Conclusion
+You have created a custom VPC.
+
+You have created Public and Private subnets inside the VPC.
+
+You have created the Internet gateway and attached it to the VPC.
+
+You have created and configured Route tables.
+
+You have created a Security group for EC2 Instance.
+
+You have launched an EC2 Instance with the custom VPC in the Public subnet.
+
+You have confirmed that the public subnet is configured correctly by checking the HTML page.
+
+End Project
+Sign out of AWS Management Console.
+
+You have successfully completed the project.
+
+Once you have completed the steps, click on  from your whizlabs dashboard.
