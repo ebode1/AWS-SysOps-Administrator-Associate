@@ -1,0 +1,230 @@
+/
+Compute, 
+Networking 
+Lab Steps
+Task 1: Sign in to AWS Management Console
+Click on the  , and you will get redirected to AWS Console in a new browser tab.
+
+On the AWS sign-in page,
+
+Leave the Account ID as default. Never edit/remove the 12 digit Account ID present in the AWS Console. otherwise, you cannot proceed with the lab.
+
+Now copy your User Name and Password in the Lab Console to the IAM Username and Password in AWS Console and click on the Sign in button.
+
+     3. Once Signed In to the AWS Management Console, Make the default AWS Region as US East (N. Virginia) us-east-1.
+
+Task 2: Create CloudWatch Logs
+Navigate to the Services menu at the top and choose CloudWatch under Management and Governance.
+
+Click on Log Groups in the left side panel and Click on 
+
+Enter the Log Group Name: whizvpclogs and click on Create.
+
+
+
+Task 3: Create a VPC
+Navigate to the Services menu at the top and choose VPC under Networking and Content Delivery.
+
+Click on Your VPC’s in the left side panel then click on  and select VPC only. 
+
+VPC Settings:
+
+Name tag: Enter MyVPC
+
+IPv4 CIDR block: Enter 10.1.0.0/16
+
+
+
+Then leave the other fields as default and click on .
+
+Click on Your VPC's on the left panel and it will be shown like this.
+
+
+
+Task 6: Creating an Internet Gateway
+Select Internet Gateways in the left side panel and click on the   
+
+Enter the name as MyInternetGateway. Leave everything else as default and click on the  
+
+
+Once created, attach it to MyVPC by clicking on Actions at the top and selecting Attach to VPC.
+          
+
+Under Available VPCs, select MyVPC and then click on Attach internet gateway button.
+
+Click on the Route Tables on the left side panel and then choose the main route table for your VPC,i.e., MyVPC. 
+
+Now click on the Routes tab and then click on .
+
+
+Click on Add Routes
+
+Destination: Enter 0.0.0.0/0 
+
+Target: Select Internet Gateway and choose MyInternetGateway from the drop-down list.
+
+Click on Save Changes button.
+
+
+
+Task 7: Create a Subnet
+Click on Subnets in the left side panel and click on Create Subnet .
+
+VPC:
+
+VPC ID: Select MyVPC
+
+
+
+Subnet settings:
+
+Subnet name: Enter whizsub
+
+Availability Zone: Select US East(N.Virginia)/us-east-1a
+
+IPv4 CIDR Block: Enter 10.1.1.0/24
+
+Click on Create subnet button.
+
+
+
+Task 8: Create VPC Flow Logs
+Click on Your VPC's on the left side panel and select MyVPC, click on Actions then select Create Flow Log.
+
+Create flow log:
+
+Name: Enter MyVPCFlowLog
+
+Filter: Select Accept
+
+Maximum Aggregation Interval: Select 1 minute
+
+Destination: Select Send to Cloudwatch Logs
+
+Destination Log Group: Select whizvpclogs.
+
+
+
+IAM role: Select VPCFlowLog_Role_<RANDOM_NUMBER>. This role has been already created for you.
+
+Leave the other options as default, then click on Create flow log.
+
+
+
+Once the flow logs are created, In the My VPC's dashboard, select MyVPC, and click on Flow Logs tab below.
+
+
+Now you have successfully learned how to create the VPC Flow Logs. 
+
+Task 9: Creating an EC2 Instance
+Navigate to Services at the top and click on EC2 under Compute. 
+
+Make sure you are in the US-East (N.Virginia) us-east-1 region.
+
+Select Instances in the left side panel and click on .
+
+ Enter Name as whizlabsec2instance.
+
+Choose an Amazon Machine Image (AMI): Select Amazon Linux 2 AMI in the drop-down.
+
+Choose architecture as 64-bit(x86)
+                
+
+     6. Choose an Instance Type: Select t2.micro.
+
+         
+
+     7. For Key pair: Select Create a new key pair Button
+
+Key pair name: WhizKey
+
+Key pair type: RSA
+
+Private key file format: .pem
+
+Select Create key pair Button.
+
+           
+
+   9. In Network Settings Click on Edit Button:
+
+VPC : Select MyVPC
+
+Subnet: It automatically selects the Subnet we created(whizsub)
+
+Auto-assign public IP: Enable
+
+Select Create new Security group
+
+Security group name : Enter MyEC2Server_SG
+
+Description : Enter Security Group to allow traffic to EC2
+
+
+
+Check Allow SSH from and Select Anywhere from dropdown
+
+To add SSH,
+
+Choose Type: 
+
+Source: Select  
+
+For HTTP, Select Add Security rule Button
+
+Choose Type: HTTP 
+
+Source:  Select 
+
+     10. Under Advanced Details, scroll to IAM Instance Profile, and select VPCFlowLog_Role_<RANDOM_NUMBER>.
+
+Once the download is complete, click on Launch Instances.
+
+After 1-5 minutes, the Instance State will change to Running, as shown below:
+
+
+Task 10: Generating Traffic
+
+ We need to SSH into the instance to generate traffic. To do so, please follow the steps in SSH into EC2 Instance.
+
+
+
+Once you SSH into the instance, install an Apache Server. To install it, follow the below steps. Run these commands one-by-one.
+
+sudo su
+yum -y update
+yum install httpd -y
+cd /var/www/html
+echo "Response coming from server" > /var/www/html/index.html
+systemctl start httpd
+systemctl enable httpd
+systemctl status httpd 
+
+
+Copy your instance's Public-IP/index.html, paste it into your browser and hit enter.
+
+
+
+Task 11: Viewing log events in Cloudwatch Log groups
+Navigate to the Services menu at the top and choose CloudWatch under Management and Governance.
+
+Click on Log Groups in the left side panel and click on whizvpclogs.
+
+Go to Log streams section and click on the log stream that has been created [In my case - eni-0cce25a260b5d0fbe-accept]
+
+        
+
+      5. You will be able to view all the log events i.e the traffic that is being directed to our EC2 Instance.
+
+             
+
+Completion and Conclusion
+You have successfully created CloudWatch Logs.
+
+You have successfully created the VPC.
+
+You have successfully created the VPC Flow Logs.
+
+You have successfully created an Instance.
+
+You have successfully created Subnets that should be separate then generated some site traffic.
