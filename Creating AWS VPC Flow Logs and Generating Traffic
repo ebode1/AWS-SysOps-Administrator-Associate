@@ -2,6 +2,25 @@
 Compute, 
 Networking 
 Lab Steps
+Sign into the AWS Management Console
+
+Create CloudWatch Logs.
+
+Create a VPC.
+
+Create an Internet Gateway.
+
+Create a Subnet.
+
+Create VPC Flow Logs.
+
+Create an EC2 Instance.
+
+Generating Traffic
+
+Viewing log events in Cloudwatch Log groups.
+
+
 Task 1: Sign in to AWS Management Console
 Click on the  , and you will get redirected to AWS Console in a new browser tab.
 
